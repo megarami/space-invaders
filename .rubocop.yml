@@ -1,0 +1,15 @@
+require:
+  - rubocop-performance
+  - rubocop-rake
+#  - rubocop-rspec
+AllCops:
+  TargetRubyVersion: 3.4  # or whichever version you're using
+
+Style/MethodCallWithArgsParentheses:
+  Enabled: true
+  EnforcedStyle: require_parentheses
+
+# If you also want to enforce parentheses in method definitions:
+Style/MethodDefParentheses:
+  Enabled: true
+  EnforcedStyle: require_parentheses

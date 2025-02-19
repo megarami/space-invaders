@@ -1,16 +1,11 @@
 # frozen_string_literal: true
 
-require "zeitwerk"
-
-Zeitwerk::Loader.new.then do |loader|
-  loader.tag = File.basename __FILE__, ".rb"
-  loader.push_dir __dir__
-  loader.setup
-end
-
+require 'awesome_print'
+require_relative 'space_invaders/detector'
+require_relative 'space_invaders/invader'
+require_relative 'space_invaders/small_invader'
+require_relative 'space_invaders/large_invader'
+require_relative 'space_invaders/radar'
 # Main namespace.
 module SpaceInvaders
-  def self.loader registry = Zeitwerk::Registry
-    @loader ||= registry.loaders.find { |loader| loader.tag == File.basename(__FILE__, ".rb") }
-  end
 end
