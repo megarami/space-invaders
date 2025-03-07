@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'awesome_print'
 require_relative 'space_invaders/detector'
 require_relative 'space_invaders/invader'
 require_relative 'space_invaders/small_invader'

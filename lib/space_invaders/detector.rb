@@ -2,8 +2,10 @@
 
 module SpaceInvaders
   class Detector
-    def initialize(radar, invaders)
-      @radar = radar
+    attr_reader :radar
+
+    def initialize(radar_data, invaders)
+      @radar = Radar.new(radar_data)
       @invaders = invaders
     end
 
