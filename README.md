@@ -1,22 +1,72 @@
-# Development assignment
+# Space Invaders Detector
 
-Space invaders are upon us!
-You were shortlisted as one of the great minds to help us track them down.
+This application detects Space Invader patterns in radar samples. By using pattern matching with customizable similarity thresholds, it can identify potential invaders even with noise and partial visibility.
 
-Your Ruby application must take a radar sample as an argument and reveal possible locations of those pesky invaders.
-Good luck!
+## Features
 
-### Requirements:
-- No image detection, this is all about ASCII patterns
-- Good OOP architecture is a must. This is a perfect opportunity to demonstrate the SOLID design principle experience.
-- Fully tested code with RSpec
+- Detect multiple known Space Invader patterns in radar samples
+- Adjust similarity threshold for detection sensitivity
+- Handle partially visible invaders at radar edges
+- Configurable via command-line options
+- Filter detection by invader types
+- Extensible design for adding new invader patterns
 
-### Tips:
-- The noise in the radar can be either false positives or false negatives
-- Think of edge cases ... pun intended ;)
+## Requirements
 
-### Known invaders:
-~~~~
+- Ruby 3.0.0 or higher
+- Bundler
+
+## Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/megarami/space-invaders
+   cd space_invaders
+   ```
+
+2. Install dependencies:
+   ```bash
+   bundle install
+   ```
+
+## Usage
+
+Run the detector with a radar sample file:
+
+```bash
+ruby run_detector.rb radar_1.txt
+```
+
+### Command Line Options
+
+```
+Usage: run_detector.rb [options] RADAR_FILE
+    -s, --similarity FLOAT           Minimum similarity threshold (default: 0.7)
+    -i, --invaders LIST              Invader types to detect: large, small, or both (default: large,small)
+    -h, --help                       Show this help message
+```
+
+### Examples
+
+Detect all invaders with default settings:
+```bash
+ruby run_detector.rb samples/radar1.txt
+```
+
+Detect with a lower similarity threshold (more sensitive):
+```bash
+ruby run_detector.rb -s 0.6 samples/radar_1.txt
+```
+
+Detect only small invaders:
+```bash
+ruby run_detector.rb -i small samples/radar_1.txt
+```
+
+## Known Invader Patterns
+
+### Large Invader
+```
 --o-----o--
 ---o---o---
 --ooooooo--
@@ -25,9 +75,10 @@ ooooooooooo
 o-ooooooo-o
 o-o-----o-o
 ---oo-oo---
-~~~~
+```
 
-~~~~
+### Small Invader
+```
 ---oo---
 --oooo--
 -oooooo-
@@ -36,58 +87,51 @@ oooooooo
 --o--o--
 -o-oo-o-
 o-o--o-o
-~~~~
+```
 
-### Example radar sample:
-~~~~
-----o--oo----o--ooo--ooo--o------o---oo-o----oo---o--o---------o----o------o-------------o--o--o--o-
---o-o-----oooooooo-oooooo---o---o----o------ooo-o---o--o----o------o--o---ooo-----o--oo-o------o----
---o--------oo-ooo-oo-oo-oo-----O------------ooooo-----oo----o------o---o--o--o-o-o------o----o-o-o--
--------o--oooooo--o-oo-o--o-o-----oo--o-o-oo--o-oo-oo-o--------o-----o------o-ooooo---o--o--o-------
-------o---o-ooo-ooo----o-----oo-------o---oo-ooooo-o------o----o--------o-oo--ooo-oo-------------o-o
--o--o-----o-o---o-ooooo-o-------oo---o---------o-----o-oo-----------oo----ooooooo-ooo-oo------------
-o-------------ooooo-o--o--o--o-------o--o-oo-oo-o-o-o----oo------------o--oooo--ooo-o----o-----o--o-
---o-------------------------oo---------oo-o-o--ooo----oo----o--o--o----o--o-o-----o-o------o-o------
--------------------o----------o------o--o------o--------o--------o--oo-o-----oo-oo---o--o---o-----oo
-----------o----------o---o--------------o--o----o--o-o------------oo------o--o-o---o-----o----------
-------o----o-o---o-----o-o---o-----oo-o--------o---------------------------------o-o-o--o-----------
----------------o-------o-----o-------o-------------------o-----o---------o-o-------------o-------oo-
--o--o-------------o-o-----o--o--o--oo-------------o----ooo----o-------------o----------oo----o---o-o
--o--o-------------o----oo------o--o-------o--o-----o-----o----o-----o--o----o--oo-----------o-------
--o-----oo-------o------o----o----------o--o----o-----o-----o-------o-----------o---o-o--oooooo-----o
--o--------o-----o-----o---------oo----oo---o-o---------o---o--oooo-oo--o-------o------oo--oo--o-----
-------------o---------o---------o----oooo-------------oo-oo-----ooo-oo-----o-------o-oo-oooooooo---o
-----------------------o------------oooooooo---o-----o-------o--oooooo-o------------o-o-ooooooo-o----
-------------o------o---o---o-------oo-oo--o--o---------o--o-o-o-ooooo-o--------------oo-o----o-oo-o-
----o-o----------oo-------oo----o----oooooooo-------o----o-o-o-o-----o-o-----o----------ooo-oo--o---o
--o-o---------o-o---------------o--o--o--ooo---ooo-------o------oo-oo------------o--------o--o-o--o--
--------oo---------------------------o-oo----------o------o-o-------o-----o----o-----o-oo-o-----o---o
----o--------o-----o-------o-oo-----oo--oo-o----oo----------o--o---oo------oo----o-----o-------o-----
----o--ooo-o---------o-o----o------------o---------o----o--o-------o----o--------o----------------oo-
----o------o----------------o----o------o------o---oo-----------o-------------o----------oo---------o
---oo---------------o--o------o---o-----o--o-------------o------o-------o-----o-----o----o------o--o-
--o-------o----------o-o-o-------o-----o--o-o-----------o-oo-----------o------o---------o-----o-o----
-----------o----o-------o----o--o------o------------o---o---------------oo----o-----ooo--------------
-----o--------oo----o-o----o--o------ooo----o-oooo---o--o-oo--------o-oo-----o-o---o-o--o-----oo-----
-------o--------o-ooooo----o---o--o-----o---------------o-o-------o-----o----------------------------
-o-------oo----o--oooooo-o---o--o------oooo----------o-oo-------o---o----------o------oo-------------
--o---o----------o--oo-oo-o---o-----o-o-----------------------oo--o------o------o--------------------
------oo-o-o-o---ooooooooo----o----o--------o--o---oo---o------------o----------o-o---o------o-o--oo-
-------o------o---ooo-o---------------------------o--o---o---o----o--o-------o-----o------o----o----o
--------o----------ooo-o-----o----o---o--o-oo--o--o-o--o------o--o-oo---ooo------------------------o-
--o-------o------o-o--ooo--o---o---oo-----o----o-------------o----o-ooo-o------o--o-o------o-o-------
----oo--o---o-o---------o---o--------------o--o-----o-------o-----o--o---o-oo--------o----o----o-----
-o------o----oo-o-----------oo--o---o--------o-o------o-------o-o------o-oo---------o-----oo---------
-----o--o---o-o-----------o---o------------o-------o----o--o--o--o-o---------------o-----------------
--------oo--o-o-----o-----o----o-o--o----------------------o-------o------o----oo----ooo---------o---
-o-----oo-------------------o--o-----o-----------o------o-------o----o-----------o----------------o--
---o---o-------o------------o--------------------o----o--o-------------oo---o---------oo--------o----
---o--------o---------o------------o------o-------o------------o-------o---o---------ooooo-----------
-------o--------------o-o-o---------o---o-------o--o-----o-------o-o----------o-----oo-ooo----------o
---o---------------o----o--oo-------------o---------o-------------------oo---------oo-o-ooo----------
--o-----------o------ooo----o----------------ooo-----o--------o--o---o-----------o-o-oooooo--------oo
--o---o-------o---o-oooo-----o-------------------o----oo-----------------o--o--------o--o------o--o--
--------o---o------oooooo--o----ooo--o--------o-------o----------------------------oo-oo-o--o--------
-o--oo------o-----oo--o-oo------------oo--o------o--o-------------oo----o------------oooo-o------oo--
------o----------ooooooooo--------------oo--------------oo-----o-----o-o--o------o----------o----o---
-~~~~
+## How It Works
+
+1. The application loads the radar sample and known invader patterns
+2. For each invader, it scans the radar by sliding a window across all possible positions
+3. At each position, it calculates the similarity between the invader pattern and the radar data
+4. If the similarity exceeds the threshold and enough of the pattern is visible, it's considered a match
+5. Duplicate matches (same invader in very close positions) are filtered out
+6. Results are displayed, showing each match with its position and similarity score
+
+## Adding New Invader Patterns
+
+To add a new invader pattern:
+
+Create a new class in `lib/space_invaders/` (e.g., `medium_invader.rb`):
+
+```ruby
+# frozen_string_literal: true
+
+module SpaceInvaders
+  class MediumInvader < Invader
+    initialize_pattern(
+      <<~PATTERN
+        # Your pattern here
+      PATTERN
+    )
+  end
+end
+```
+
+## Running Tests
+
+Run the test suite with:
+
+```bash
+bundle exec rspec
+```
+
+To check code quality:
+
+```bash
+bundle exec rubocop
+```
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
