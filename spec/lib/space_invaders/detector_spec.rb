@@ -23,7 +23,8 @@ RSpec.describe(SpaceInvaders::Detector) do
         ].join("\n")
       end
 
-      let(:detector) { described_class.new(radar_data, [small_invader]) }
+      let(:radar) { SpaceInvaders::Radar.new(radar_data) }
+      let(:detector) { described_class.new(radar, [small_invader]) }
 
       it 'finds the small invader with perfect similarity' do
         results = detector.detect
@@ -51,7 +52,8 @@ RSpec.describe(SpaceInvaders::Detector) do
         ].join("\n")
       end
 
-      let(:detector) { described_class.new(radar_data, [small_invader]) }
+      let(:radar) { SpaceInvaders::Radar.new(radar_data) }
+      let(:detector) { described_class.new(radar, [small_invader]) }
 
       it 'finds the small invader with less than perfect similarity' do
         results = detector.detect(0.9) # Lower threshold
@@ -83,7 +85,8 @@ RSpec.describe(SpaceInvaders::Detector) do
         ].join("\n")
       end
 
-      let(:detector) { described_class.new(radar_data, [large_invader]) }
+      let(:radar) { SpaceInvaders::Radar.new(radar_data) }
+      let(:detector) { described_class.new(radar, [large_invader]) }
 
       it 'finds the partially visible invader' do
         results = detector.detect(0.7)
@@ -117,7 +120,8 @@ RSpec.describe(SpaceInvaders::Detector) do
         ].join("\n")
       end
 
-      let(:detector) { described_class.new(radar_data, [small_invader, large_invader]) }
+      let(:radar) { SpaceInvaders::Radar.new(radar_data) }
+      let(:detector) { described_class.new(radar, [small_invader, large_invader]) }
 
       it 'finds both invaders' do
         results = detector.detect(0.8)
@@ -148,7 +152,8 @@ RSpec.describe(SpaceInvaders::Detector) do
         ].join("\n")
       end
 
-      let(:detector) { described_class.new(radar_data, [small_invader]) }
+      let(:radar) { SpaceInvaders::Radar.new(radar_data) }
+      let(:detector) { described_class.new(radar, [small_invader]) }
 
       it 'still finds the invader with sufficient similarity' do
         results = detector.detect(0.8) # 80% similarity threshold

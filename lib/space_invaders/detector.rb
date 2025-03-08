@@ -4,8 +4,8 @@ module SpaceInvaders
   class Detector
     attr_reader :radar
 
-    def initialize(radar_data, invaders, config = nil)
-      @radar = Radar.new(radar_data)
+    def initialize(radar, invaders, config = nil)
+      @radar = radar
       @invaders = invaders
       @config = config || Configuration.new
     end
