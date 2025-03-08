@@ -4,12 +4,15 @@ module SpaceInvaders
   class Detector
     attr_reader :radar
 
-    def initialize(radar_data, invaders)
+    def initialize(radar_data, invaders, config = nil)
       @radar = Radar.new(radar_data)
       @invaders = invaders
+      @config = config || Configuration.new
     end
 
-    def detect(min_similarity = 0.7)
+    def detect(min_similarity = nil)
+      threshold = min_similarity || @config.min_similarity
+      min_visibility = @config.min_visibility
       matches = []
 
       @invaders.each do |invader|
@@ -20,7 +23,7 @@ module SpaceInvaders
                                                                                              col)
 
             # Only consider matches with enough visible pattern and sufficient similarity
-            next if similarity < min_similarity || significant_cells < (invader.total_significant_cells * 0.5)
+            next if similarity < threshold || significant_cells < (invader.total_significant_cells * min_visibility)
 
             matches << {
               invader: invader,
