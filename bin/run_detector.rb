@@ -23,9 +23,8 @@ module SpaceInvaders
       end
 
       radar_data = File.read(@radar_file)
-      @invaders = load_invaders
-      detector = Detector.new(radar_data, @invaders)
-      results = detector.detect(@config[:min_similarity])
+      detector_service = DetectorService.new(radar_data, @config)
+      results = detector_service.detect
 
       if results.empty?
         puts('No invaders detected in the radar sample.')
@@ -35,14 +34,6 @@ module SpaceInvaders
     end
 
     private
-
-    def load_invaders
-      invaders = []
-
-      invaders << LargeInvader if @config[:invader_types].include?('large')
-
-      invaders << SmallInvader if @config[:invader_types].include?('small')
-    end
 
     def parse_options
       opt_parser = OptionParser.new do |opts|
