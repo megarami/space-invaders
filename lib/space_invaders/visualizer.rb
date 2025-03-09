@@ -8,6 +8,9 @@ module SpaceInvaders
       red: "\e[31m",
       green: "\e[32m",
       yellow: "\e[33m",
+      blue: "\e[34m",
+      magenta: "\e[35m",
+      cyan: "\e[36m"
     }.freeze
 
     def initialize(radar, matches, format = 'text')
@@ -77,10 +80,87 @@ module SpaceInvaders
       match_data += "Position: (#{start_row}, #{start_col})\n"
       match_data += "Match similarity: #{(match[:similarity] * 100).round(2)}%\n\n"
 
-      legend + grid.map(&:join).join("\n") + "\n" +match_data
+      legend + grid.map(&:join).join("\n") + "\n" + match_data
+    end
+
+    def visualize_full_radar
+      # Create a copy of the radar grid
+      visualization = @radar.grid.map(&:dup)
+
+      # Mark each detected invader
+      @matches.each do |match|
+        mark_invader(visualization, match, nil) # Color will be determined by invader type
+      end
+
+      # Add legend
+      legend = create_legend
+
+      # Convert to string
+      result = legend + "\n\n"
+
+      if @format == 'ascii'
+        result + visualization.map { |row| row.join }.join("\n")
+      else
+        result + visualization.map { |row| row.join }.join("\n")
+      end
+    end
+
+    def create_legend
+      return '' unless @color_enabled
+
+      legend = "Legend:\n"
+
+      if @format == 'text'
+        # Add specific colors for each invader type
+        legend += "#{colorize('O', :cyan)} = Large Invader\n"
+        legend += "#{colorize('O', :magenta)} = Small Invader\n"
+
+      else
+        # Legend for individual match visualization
+        legend += "#{colorize('o', :green)} = Matching invader pattern\n"
+        legend += "#{colorize('x', :red)} = Missing pattern cell\n"
+        legend += "#{colorize('?', :yellow)} = Radar noise\n"
+      end
+
+      legend
     end
 
     private
+
+    def mark_invader(grid, match, _color)
+      invader = match[:invader]
+      start_row, start_col = match[:position]
+
+      # Map invader type to specific color
+      invader_type = invader.name.split('::').last
+      invader_color = get_color_for_invader_type(invader_type)
+
+      # Mark the actual invader cells
+      invader.pattern.each_with_index do |pattern_row, row_idx|
+        pattern_row.each_with_index do |cell, col_idx|
+          radar_row = start_row + row_idx
+          radar_col = start_col + col_idx
+
+          next unless within_radar_bounds?(radar_row, radar_col)
+          next unless cell == 'o'
+
+          grid[radar_row][radar_col] = colorize('o', invader_color)
+        end
+      end
+    end
+
+    def get_color_for_invader_type(type)
+      # Map invader types to specific colors
+      case type
+      when 'LargeInvader'
+        :cyan
+      when 'SmallInvader'
+        :magenta
+      else
+        # For any new invader types, use a default color
+        :blue
+      end
+    end
 
     def within_radar_bounds?(row, col)
       row >= 0 && row < @radar.height && col >= 0 && col < @radar.width

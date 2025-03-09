@@ -9,6 +9,7 @@ module SpaceInvaders
     DEFAULT_CONFIG = {
       min_similarity: 0.7,
       output_format: 'text',
+      visualization: true,
       invader_types: %w[large small]
     }.freeze
 
@@ -50,6 +51,16 @@ module SpaceInvaders
           @config[:invader_types] = list
         end
 
+        opts.on('--[no-]visualization',
+                "Enable/disable visualization (default: #{DEFAULT_CONFIG[:visualization]})") do |v|
+          @config[:visualization] = v
+        end
+
+        opts.on('-f', '--format FORMAT', %w[text ascii],
+                "Output format: text or ascii (default: #{DEFAULT_CONFIG[:output_format]})") do |f|
+          @config[:output_format] = f
+        end
+
         opts.on('-h', '--help', 'Show this help message') do
           puts(opts)
           exit
@@ -70,10 +81,21 @@ module SpaceInvaders
       visualizer = Visualizer.new(radar, results, @config[:output_format])
 
       puts("Detected #{results.size} potential invaders:")
+
       results.each_with_index do |match, index|
-        puts("\n##{index + 1}:")
-        puts(visualizer.visualize_match(match))
+        puts("\n##{index + 1}: #{match[:invader].name.split('::').last}")
+        puts("  Position: [#{match[:position][0]}, #{match[:position][1]}]")
+        puts("  Similarity: #{(match[:similarity] * 100).round(2)}%")
+        puts("  Matching cells: #{match[:matching_cells]}/#{match[:significant_cells]} (visible pattern)")
+
+        if @config[:visualization]
+          puts("\nVisualization:")
+          puts(visualizer.visualize_match(match))
+        end
       end
+
+      puts("\nFull radar visualization with all detected invaders:") if @config[:visualization]
+      puts(visualizer.visualize_full_radar) if @config[:visualization]
     end
   end
 end

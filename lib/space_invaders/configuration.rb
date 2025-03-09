@@ -17,6 +17,9 @@ module SpaceInvaders
       # Output format (text or ascii)
       output_format: 'text',
 
+      # Output visualization settings
+      visualization: true,
+
       # Invader types to detect
       invader_types: %w[large small]
     }.freeze
