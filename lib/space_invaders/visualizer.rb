@@ -38,6 +38,14 @@ module SpaceInvaders
         grid[display_height - 1][j] = '-'
       end
 
+      legend = ''
+      if @color_enabled
+        legend = "Legend:\n"
+        legend += "#{colorize('o', :green)} = Matching invader pattern\n"
+        legend += "#{colorize('x', :red)} = Missing pattern cell\n"
+        legend += "#{colorize('?', :yellow)} = Radar noise\n"
+      end
+
       # Add the invader pattern
       invader.pattern.each_with_index do |pattern_row, row_idx|
         pattern_row.each_with_index do |cell, col_idx|
@@ -67,9 +75,9 @@ module SpaceInvaders
 
       match_data = "Invader: #{invader.name}\n"
       match_data += "Position: (#{start_row}, #{start_col})\n"
-      match_data += "Match confidence: #{match[:confidence]}%\n\n"
+      match_data += "Match similarity: #{(match[:similarity] * 100).round(2)}%\n\n"
 
-      match_data + grid.map(&:join).join("\n")
+      legend + grid.map(&:join).join("\n") + "\n" +match_data
     end
 
     private

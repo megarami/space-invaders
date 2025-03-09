@@ -71,11 +71,7 @@ module SpaceInvaders
 
       puts("Detected #{results.size} potential invaders:")
       results.each_with_index do |match, index|
-        puts("\n##{index + 1}: #{match[:invader].class.name.split('::').last} Invader")
-        puts("  Position: [#{match[:position][0]}, #{match[:position][1]}]")
-        puts("  Similarity: #{(match[:similarity] * 100).round(2)}%")
-        puts("  Matching cells: #{match[:matching_cells]}/#{match[:significant_cells]} (visible pattern)")
-
+        puts("\n##{index + 1}:")
         puts(visualizer.visualize_match(match))
       end
     end
