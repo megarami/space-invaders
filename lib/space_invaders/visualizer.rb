@@ -80,7 +80,7 @@ module SpaceInvaders
       match_data += "Position: (#{start_row}, #{start_col})\n"
       match_data += "Match similarity: #{(match[:similarity] * 100).round(2)}%\n\n"
 
-      legend + grid.map(&:join).join("\n") + "\n" + match_data
+      "#{legend}#{grid.map(&:join).join("\n")}\n#{match_data}"
     end
 
     def visualize_full_radar
@@ -96,7 +96,7 @@ module SpaceInvaders
       legend = create_legend
 
       # Convert to string
-      result = legend + "\n\n"
+      result = "#{legend}\n\n"
 
       if @format == 'ascii'
         result + visualization.map { |row| row.join }.join("\n")

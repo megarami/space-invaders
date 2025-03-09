@@ -5,19 +5,15 @@ module SpaceInvaders
   class DetectorService
     attr_reader :radar, :invaders
 
-    def initialize(radar_data, config = {})
+    def initialize(radar_data, config = Configuration.new)
       @radar = Radar.new(radar_data)
-      @config = {
-        min_similarity: 0.7,
-        invader_types: %w[large small]
-      }.merge(config)
-
+      @config = config
       load_invaders
     end
 
     def detect
-      detector = Detector.new(@radar, @invaders)
-      detector.detect(@config[:min_similarity])
+      detector = Detector.new(@radar, @invaders, @config)
+      detector.detect
     end
 
     private
@@ -25,9 +21,9 @@ module SpaceInvaders
     def load_invaders
       @invaders = []
 
-      @invaders << LargeInvader if @config[:invader_types].include?('large')
+      @invaders << LargeInvader if @config.invader_types.include?('large')
 
-      @invaders << SmallInvader if @config[:invader_types].include?('small')
+      @invaders << SmallInvader if @config.invader_types.include?('small')
 
       return unless @invaders.empty?
 

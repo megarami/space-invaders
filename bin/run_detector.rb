@@ -6,15 +6,8 @@ require 'optparse'
 
 module SpaceInvaders
   class Runner
-    DEFAULT_CONFIG = {
-      min_similarity: 0.7,
-      output_format: 'text',
-      visualization: true,
-      invader_types: %w[large small]
-    }.freeze
-
     def initialize
-      @config = DEFAULT_CONFIG.dup
+      @config = Configuration.new
       parse_options
     end
 
@@ -42,23 +35,33 @@ module SpaceInvaders
         opts.banner = 'Usage: run_detector.rb [options] RADAR_FILE'
 
         opts.on('-s', '--similarity FLOAT', Float,
-                "Minimum similarity threshold (default: #{DEFAULT_CONFIG[:min_similarity]})") do |s|
-          @config[:min_similarity] = s
+                "Minimum similarity threshold (default: #{Configuration::DEFAULTS[:min_similarity]})") do |s|
+          @config.min_similarity = s
         end
 
         opts.on('-i', '--invaders LIST', Array,
-                "Invader types to detect: large, small, or both (default: #{DEFAULT_CONFIG[:invader_types].join(',')})") do |list|
-          @config[:invader_types] = list
+                "Invader types to detect: large, small, or both (default: #{Configuration::DEFAULTS[:invader_types].join(',')})") do |list|
+          @config.invader_types = list
         end
 
         opts.on('--[no-]visualization',
-                "Enable/disable visualization (default: #{DEFAULT_CONFIG[:visualization]})") do |v|
-          @config[:visualization] = v
+                "Enable/disable visualization (default: #{Configuration::DEFAULTS[:visualization]})") do |v|
+          @config.visualization = v
         end
 
         opts.on('-f', '--format FORMAT', %w[text ascii],
-                "Output format: text or ascii (default: #{DEFAULT_CONFIG[:output_format]})") do |f|
-          @config[:output_format] = f
+                "Output format: text or ascii (default: #{Configuration::DEFAULTS[:output_format]})") do |f|
+          @config.output_format = f
+        end
+
+        opts.on('-v', '--visibility FLOAT', Float,
+                "Minimum visibility threshold (default: #{Configuration::DEFAULTS[:min_visibility]})") do |v|
+          @config.min_visibility = v
+        end
+
+        opts.on('-d', '--duplicate-threshold FLOAT', Float,
+                "Duplicate detection threshold (default: #{Configuration::DEFAULTS[:duplicate_threshold]})") do |d|
+          @config.duplicate_threshold = d
         end
 
         opts.on('-h', '--help', 'Show this help message') do
@@ -78,7 +81,7 @@ module SpaceInvaders
     end
 
     def output_results(results, radar)
-      visualizer = Visualizer.new(radar, results, @config[:output_format])
+      visualizer = Visualizer.new(radar, results, @config.output_format)
 
       puts("Detected #{results.size} potential invaders:")
 
@@ -88,14 +91,14 @@ module SpaceInvaders
         puts("  Similarity: #{(match[:similarity] * 100).round(2)}%")
         puts("  Matching cells: #{match[:matching_cells]}/#{match[:significant_cells]} (visible pattern)")
 
-        if @config[:visualization]
+        if @config.visualization
           puts("\nVisualization:")
           puts(visualizer.visualize_match(match))
         end
       end
 
-      puts("\nFull radar visualization with all detected invaders:") if @config[:visualization]
-      puts(visualizer.visualize_full_radar) if @config[:visualization]
+      puts("\nFull radar visualization with all detected invaders:") if @config.visualization
+      puts(visualizer.visualize_full_radar) if @config.visualization
     end
   end
 end

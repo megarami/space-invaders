@@ -4,15 +4,16 @@ module SpaceInvaders
   class Detector
     attr_reader :radar
 
-    def initialize(radar, invaders, config = nil)
+    def initialize(radar, invaders, config = Configuration.new)
       @radar = radar
       @invaders = invaders
-      @config = config || Configuration.new
+      @config = config
     end
 
     def detect(min_similarity = nil)
       threshold = min_similarity || @config.min_similarity
       min_visibility = @config.min_visibility
+      duplicate_threshold = @config.duplicate_threshold
       matches = []
 
       @invaders.each do |invader|
@@ -38,7 +39,7 @@ module SpaceInvaders
       end
 
       sorted_matches = matches.sort_by { |match| -match[:similarity] }
-      filter_duplicates(sorted_matches)
+      filter_duplicates(sorted_matches, duplicate_threshold)
     end
 
     def calculate_similarity_with_bounds(invader, start_row, start_col)
@@ -70,7 +71,8 @@ module SpaceInvaders
       [similarity, matching_cells, significant_cells]
     end
 
-    def filter_duplicates(matches)
+    def filter_duplicates(matches, duplicate_threshold = nil)
+      threshold = duplicate_threshold || @config.duplicate_threshold
       filtered = []
 
       matches.each do |match|
@@ -80,8 +82,8 @@ module SpaceInvaders
           row_diff = (match[:position][0] - kept_match[:position][0]).abs
           col_diff = (match[:position][1] - kept_match[:position][1]).abs
 
-          max_row_diff = (match[:invader].height * 0.3).ceil
-          max_col_diff = (match[:invader].width * 0.3).ceil
+          max_row_diff = (match[:invader].height * threshold).ceil
+          max_col_diff = (match[:invader].width * threshold).ceil
 
           row_diff <= max_row_diff && col_diff <= max_col_diff
         end
