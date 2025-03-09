@@ -8,6 +8,7 @@ module SpaceInvaders
   class Runner
     DEFAULT_CONFIG = {
       min_similarity: 0.7,
+      output_format: 'text',
       invader_types: %w[large small]
     }.freeze
 

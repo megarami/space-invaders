@@ -3,10 +3,18 @@
 module SpaceInvaders
   # Visualizer class to render detected invaders in the radar
   class Visualizer
+    COLORS = {
+      reset: "\e[0m",
+      red: "\e[31m",
+      green: "\e[32m",
+      yellow: "\e[33m",
+    }.freeze
+
     def initialize(radar, matches, format = 'text')
       @radar = radar
       @matches = matches
       @format = format
+      @color_enabled = format == 'text' && $stdout.tty?
     end
 
     def visualize_match(match)
@@ -45,12 +53,12 @@ module SpaceInvaders
 
           grid[grid_row][grid_col] = if cell == 'o'
                                        if radar_cell == 'o'
-                                         'o'
+                                         colorize('o', :green)
                                        else
-                                         'x'
+                                         colorize('x', :red)
                                        end
                                      elsif radar_cell == 'o'
-                                       '?'
+                                       colorize('?', :yellow)
                                      else
                                        ' '
                                      end
@@ -68,6 +76,13 @@ module SpaceInvaders
 
     def within_radar_bounds?(row, col)
       row >= 0 && row < @radar.height && col >= 0 && col < @radar.width
+    end
+
+    def colorize(text, color)
+      return text unless @color_enabled
+      return text unless COLORS.key?(color)
+
+      "#{COLORS[color]}#{text}#{COLORS[:reset]}"
     end
   end
 end

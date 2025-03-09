@@ -14,6 +14,9 @@ module SpaceInvaders
       # Maximum percentage to consider matches as duplicates
       duplicate_threshold: 0.3,
 
+      # Output format (text or ascii)
+      output_format: 'text',
+
       # Invader types to detect
       invader_types: %w[large small]
     }.freeze
@@ -48,6 +51,7 @@ module SpaceInvaders
       validate_range(:min_visibility, 0.0..1.0)
       validate_range(:duplicate_threshold, 0.0..1.0)
       validate_array(:invader_types)
+      validate_inclusion(:output_format, %w[text ascii])
     end
 
     def validate_range(attribute, range)
@@ -61,6 +65,13 @@ module SpaceInvaders
       value = send(attribute)
       raise(ArgumentError, "#{attribute} must be an array") unless value.is_a?(Array)
       raise(ArgumentError, "#{attribute} cannot be empty") if value.empty?
+    end
+
+    def validate_inclusion(attribute, allowed_values)
+      value = send(attribute)
+      return if allowed_values.include?(value)
+
+      raise(ArgumentError, "#{attribute} must be one of: #{allowed_values.join(', ')}")
     end
   end
 end
