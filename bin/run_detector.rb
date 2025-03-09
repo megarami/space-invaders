@@ -29,7 +29,7 @@ module SpaceInvaders
       if results.empty?
         puts('No invaders detected in the radar sample.')
       else
-        output_results(results)
+        output_results(results, detector_service.radar)
       end
     end
 
@@ -65,12 +65,17 @@ module SpaceInvaders
       @radar_file = args.first
     end
 
-    def output_results(results)
-      results.each do |result|
-        puts("Invader detected: #{result[:invader].name}")
-        puts("Similarity: #{result[:similarity]}")
-        puts("Position: #{result[:position]}")
-        puts
+    def output_results(results, radar)
+      visualizer = Visualizer.new(radar, results, @config[:output_format])
+
+      puts("Detected #{results.size} potential invaders:")
+      results.each_with_index do |match, index|
+        puts("\n##{index + 1}: #{match[:invader].class.name.split('::').last} Invader")
+        puts("  Position: [#{match[:position][0]}, #{match[:position][1]}]")
+        puts("  Similarity: #{(match[:similarity] * 100).round(2)}%")
+        puts("  Matching cells: #{match[:matching_cells]}/#{match[:significant_cells]} (visible pattern)")
+
+        puts(visualizer.visualize_match(match))
       end
     end
   end
