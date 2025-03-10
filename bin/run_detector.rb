@@ -30,6 +30,15 @@ module SpaceInvaders
 
     private
 
+    def available_invader_types
+      # Get names of all loaded invader classes
+      SpaceInvaders.constants
+                   .map { |const| SpaceInvaders.const_get(const) }
+                   .select { |const| const.is_a?(Class) && const < Invader && const != Invader }
+                   .map { |klass| klass.name.to_s }
+                   .map { |name| name.split('::').last.gsub(/Invader$/, '').downcase }
+    end
+
     def parse_options
       opt_parser = OptionParser.new do |opts|
         opts.banner = 'Usage: run_detector.rb [options] RADAR_FILE'
@@ -40,7 +49,8 @@ module SpaceInvaders
         end
 
         opts.on('-i', '--invaders LIST', Array,
-                "Invader types to detect: large, small, or both (default: #{Configuration::DEFAULTS[:invader_types].join(',')})") do |list|
+                "Invader types to detect: #{available_invader_types} (default: #{Configuration::DEFAULTS[:invader_types]
+                                                                                  .join(',')})") do |list|
           @config.invader_types = list
         end
 

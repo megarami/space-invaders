@@ -13,11 +13,34 @@ module SpaceInvaders
       cyan: "\e[36m"
     }.freeze
 
-    def initialize(radar, matches, format = 'text')
+    def initialize(radar, matches, format = nil)
       @radar = radar
       @matches = matches
-      @format = format
-      @color_enabled = format == 'text' && $stdout.tty?
+      @format = format || Configuration::DEFAULTS[:output_format]
+      @color_enabled = @format == 'text' && $stdout.tty?
+      @invader_colors = generate_invader_colors
+    end
+
+    def generate_invader_colors
+      # Get all invader types from the SpaceInvaders module
+      invader_types = SpaceInvaders.constants
+                                   .map { |const| SpaceInvaders.const_get(const) }
+                                   .select { |const| const.is_a?(Class) && const < Invader && const != Invader }
+                                   .map { |klass| klass.name.split('::').last.gsub(/Invader$/, '').downcase }
+
+      # Available colors (excluding reset, which is not a display color)
+      available_colors = COLORS.keys - [:reset]
+
+      # Map each invader type to a color
+      colors = {}
+
+      invader_types.each_with_index do |type, index|
+        # Cycle through available colors if we have more invader types than colors
+        color = available_colors[index % available_colors.size]
+        colors[type] = color
+      end
+
+      colors
     end
 
     def visualize_match(match)
@@ -80,7 +103,7 @@ module SpaceInvaders
       match_data += "Position: (#{start_row}, #{start_col})\n"
       match_data += "Match similarity: #{(match[:similarity] * 100).round(2)}%\n\n"
 
-      "#{legend}#{grid.map(&:join).join("\n")}\n#{match_data}"
+      legend + grid.map(&:join).join("\n") + "\n" + match_data
     end
 
     def visualize_full_radar
@@ -89,20 +112,17 @@ module SpaceInvaders
 
       # Mark each detected invader
       @matches.each do |match|
-        mark_invader(visualization, match, nil) # Color will be determined by invader type
+        mark_invader(visualization, match)
       end
 
       # Add legend
       legend = create_legend
 
       # Convert to string
-      result = "#{legend}\n\n"
+      result = legend + "\n\n"
 
-      if @format == 'ascii'
-        result + visualization.map { |row| row.join }.join("\n")
-      else
-        result + visualization.map { |row| row.join }.join("\n")
-      end
+      # Format the visualization - same for both ascii and text formats
+      result + visualization.map { |row| row.join }.join("\n")
     end
 
     def create_legend
@@ -111,10 +131,13 @@ module SpaceInvaders
       legend = "Legend:\n"
 
       if @format == 'text'
-        # Add specific colors for each invader type
-        legend += "#{colorize('O', :cyan)} = Large Invader\n"
-        legend += "#{colorize('O', :magenta)} = Small Invader\n"
+        # Add all detected invader types to the legend
+        detected_types = @matches.map { |match| match[:invader].name.downcase }.uniq
 
+        detected_types.each do |type|
+          color = get_color_for_invader_type(type)
+          legend += "#{colorize('O', color)} = #{type.capitalize} Invader\n"
+        end
       else
         # Legend for individual match visualization
         legend += "#{colorize('o', :green)} = Matching invader pattern\n"
@@ -127,13 +150,12 @@ module SpaceInvaders
 
     private
 
-    def mark_invader(grid, match, _color)
+    def mark_invader(grid, match)
       invader = match[:invader]
       start_row, start_col = match[:position]
 
-      # Map invader type to specific color
-      invader_type = invader.name.split('::').last
-      invader_color = get_color_for_invader_type(invader_type)
+      # Get color for this invader type
+      invader_color = get_color_for_invader_type(invader.name.downcase)
 
       # Mark the actual invader cells
       invader.pattern.each_with_index do |pattern_row, row_idx|
@@ -150,16 +172,7 @@ module SpaceInvaders
     end
 
     def get_color_for_invader_type(type)
-      # Map invader types to specific colors
-      case type
-      when 'LargeInvader'
-        :cyan
-      when 'SmallInvader'
-        :magenta
-      else
-        # For any new invader types, use a default color
-        :blue
-      end
+      @invader_colors[type] || @invader_colors['default']
     end
 
     def within_radar_bounds?(row, col)

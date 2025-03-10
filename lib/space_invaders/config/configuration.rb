@@ -12,7 +12,7 @@ module SpaceInvaders
       min_visibility: 0.5,
 
       # Maximum percentage to consider matches as duplicates
-      duplicate_threshold: 0.3,
+      duplicate_threshold: 0.7,
 
       # Output format (text or ascii)
       output_format: 'text',
@@ -21,7 +21,7 @@ module SpaceInvaders
       visualization: true,
 
       # Invader types to detect
-      invader_types: %w[large small]
+      invader_types: ['all']
     }.freeze
 
     DEFAULTS.each_key do |key|
