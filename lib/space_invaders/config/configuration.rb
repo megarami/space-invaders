@@ -21,7 +21,7 @@ module SpaceInvaders
       visualization: true,
 
       # Invader types to detect
-      invader_types: ['all']
+      invader_types: ['all'],
     }.freeze
 
     DEFAULTS.each_key do |key|
@@ -30,7 +30,7 @@ module SpaceInvaders
 
     def initialize(options = {})
       DEFAULTS.each do |key, value|
-        instance_variable_set("@#{key}", options.fetch(key, value))
+        instance_variable_set(:"@#{key}", options.fetch(key, value))
       end
 
       validate!

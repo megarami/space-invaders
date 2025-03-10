@@ -1,15 +1,85 @@
 require:
   - rubocop-performance
   - rubocop-rake
-#  - rubocop-rspec
-AllCops:
-  TargetRubyVersion: 3.4  # or whichever version you're using
+  - rubocop-rspec
 
+AllCops:
+  TargetRubyVersion: 3.4
+  NewCops: enable
+  Exclude:
+    - 'vendor/**/*'
+    - 'bin/**/*'
+    - 'db/**/*'
+    - 'tmp/**/*'
+    - 'node_modules/**/*'
+
+# Style
+Style/Documentation:
+  Enabled: false
+
+Style/StringLiterals:
+  EnforcedStyle: single_quotes
+
+# Modified parentheses settings with RSpec exclusions
 Style/MethodCallWithArgsParentheses:
   Enabled: true
   EnforcedStyle: require_parentheses
+  Exclude:
+    - 'spec/**/*'
 
-# If you also want to enforce parentheses in method definitions:
 Style/MethodDefParentheses:
   Enabled: true
   EnforcedStyle: require_parentheses
+
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+# Metrics
+Metrics/MethodLength:
+  Max: 25  # Increased from default 10
+
+Metrics/AbcSize:
+  Max: 25  # Increased from default 17
+
+Metrics/ClassLength:
+  Max: 200  # Increased from default 100
+
+Metrics/CyclomaticComplexity:
+  Max: 10  # Increased from default 7
+
+Metrics/PerceivedComplexity:
+  Max: 10  # Increased from default 8
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+    - '*.gemspec'
+
+# Layout
+Layout/LineLength:
+  Max: 100
+  Exclude:
+    - 'spec/**/*'
+
+# Naming
+Naming/VariableNumber:
+  EnforcedStyle: snake_case
+
+# RSpec
+RSpec/ExampleLength:
+  Max: 15
+
+RSpec/MultipleExpectations:
+  Max: 5
+
+RSpec/NestedGroups:
+  Max: 4
+
+RSpec/DescribedClass:
+  EnforcedStyle: described_class

@@ -19,12 +19,15 @@ module SpaceInvaders
       @invaders.each do |invader|
         (-invader.height + 1..@radar.height).each do |row|
           (-invader.width + 1..@radar.width).each do |col|
-            similarity, matching_cells, significant_cells = calculate_similarity_with_bounds(invader,
+            similarity, matching_cells, significant_cells = calculate_similarity_with_bounds(invader, # rubocop:disable Layout/LineLength
                                                                                              row,
                                                                                              col)
 
             # Only consider matches with enough visible pattern and sufficient similarity
-            next if similarity < threshold || significant_cells < (invader.total_significant_cells * min_visibility)
+            if similarity < threshold ||
+               significant_cells < (invader.total_significant_cells * min_visibility)
+              next
+            end
 
             matches << {
               invader: invader,
@@ -32,7 +35,7 @@ module SpaceInvaders
               similarity: similarity,
               matching_cells: matching_cells,
               significant_cells: significant_cells,
-              total_significant_cells: invader.total_significant_cells
+              total_significant_cells: invader.total_significant_cells,
             }
           end
         end
@@ -42,6 +45,7 @@ module SpaceInvaders
       filter_duplicates(sorted_matches, duplicate_threshold)
     end
 
+    # Rubocop:enable Metrics/AbcSize
     def calculate_similarity_with_bounds(invader, start_row, start_col)
       matching_cells = 0
       significant_cells = 0

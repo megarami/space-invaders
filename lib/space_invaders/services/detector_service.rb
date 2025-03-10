@@ -34,7 +34,8 @@ module SpaceInvaders
       return unless @invaders.empty?
 
       available_types = all_invaders.map { |i| i.name.downcase }.join(', ')
-      raise(ArgumentError, "No valid invader types specified. Available types: #{available_types}, all")
+      raise(ArgumentError,
+            "No valid invader types specified. Available types: #{available_types}, all")
     end
   end
 end

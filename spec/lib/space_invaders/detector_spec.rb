@@ -19,7 +19,7 @@ RSpec.describe(SpaceInvaders::Detector) do
           '--o--o--',
           '-o-oo-o-',
           'o-o--o-o',
-          '--------'
+          '--------',
         ].join("\n")
       end
 
@@ -29,10 +29,10 @@ RSpec.describe(SpaceInvaders::Detector) do
       it 'finds the small invader with perfect similarity' do
         results = detector.detect
 
-        expect(results.size).to(eq(1))
-        expect(results.first[:invader]).to(eq(small_invader))
-        expect(results.first[:position]).to(eq([1, 0]))
-        expect(results.first[:similarity]).to(eq(1.0))
+        expect(results.size).to eq(1)
+        expect(results.first[:invader]).to eq(small_invader)
+        expect(results.first[:position]).to eq([1, 0])
+        expect(results.first[:similarity]).to eq(1.0)
       end
     end
 
@@ -48,7 +48,7 @@ RSpec.describe(SpaceInvaders::Detector) do
           '--o--o--',
           '-o-oo-o-',
           'o-o--o-o',
-          '--------'
+          '--------',
         ].join("\n")
       end
 
@@ -58,19 +58,19 @@ RSpec.describe(SpaceInvaders::Detector) do
       it 'finds the small invader with less than perfect similarity' do
         results = detector.detect(0.9) # Lower threshold
 
-        expect(results.size).to(eq(1))
+        expect(results.size).to eq(1)
 
         match = results.first
-        expect(match[:invader]).to(eq(small_invader))
-        expect(match[:position]).to(eq([1, 0]))
+        expect(match[:invader]).to eq(small_invader)
+        expect(match[:position]).to eq([1, 0])
 
         # Pattern has 24 significant cells, one is different
-        expect(match[:similarity]).to(be_within(0.1).of(23.0 / 24.0))
+        expect(match[:similarity]).to be_within(0.1).of(23.0 / 24.0)
       end
 
       it 'finds nothing with a higher threshold' do
         results = detector.detect(0.99) # Higher threshold
-        expect(results).to(be_empty)
+        expect(results).to be_empty
       end
     end
 
@@ -81,7 +81,7 @@ RSpec.describe(SpaceInvaders::Detector) do
           '---o---o---',
           '--ooooooo--',
           '-oo-ooo-oo-',
-          'ooooooooooo' # Only first 5 rows visible
+          'ooooooooooo', # Only first 5 rows visible
         ].join("\n")
       end
 
@@ -91,16 +91,16 @@ RSpec.describe(SpaceInvaders::Detector) do
       it 'finds the partially visible invader' do
         results = detector.detect(0.7)
 
-        expect(results.size).to(eq(1))
-        expect(results.first[:invader]).to(eq(large_invader))
-        expect(results.first[:position]).to(eq([0, 0]))
+        expect(results.size).to eq(1)
+        expect(results.first[:invader]).to eq(large_invader)
+        expect(results.first[:position]).to eq([0, 0])
 
         # Should have 5/8 rows visible, with perfect match
         visible_significant_cells = results.first[:significant_cells]
         total_significant_cells = results.first[:total_significant_cells]
 
-        expect(visible_significant_cells).to(be < total_significant_cells)
-        expect(results.first[:similarity]).to(eq(1.0))
+        expect(visible_significant_cells).to be < total_significant_cells
+        expect(results.first[:similarity]).to eq(1.0)
       end
     end
 
@@ -116,7 +116,7 @@ RSpec.describe(SpaceInvaders::Detector) do
           '--o--o---o-ooooooo-',
           '-o-oo-o--o-o-----o-',
           'o-o--o-----oo-oo---',
-          '--------------------'
+          '--------------------',
         ].join("\n")
       end
 
@@ -126,13 +126,13 @@ RSpec.describe(SpaceInvaders::Detector) do
       it 'finds both invaders' do
         results = detector.detect(0.8)
 
-        expect(results.size).to(eq(2))
+        expect(results.size).to eq(2)
 
         # Check first match (should be small invader)
-        expect(results.map { |r| r[:invader] }).to(include(small_invader))
+        expect(results.map { |r| r[:invader] }).to include(small_invader)
 
         # Check second match (should be large invader)
-        expect(results.map { |r| r[:invader] }).to(include(large_invader))
+        expect(results.map { |r| r[:invader] }).to include(large_invader)
       end
     end
 
@@ -148,7 +148,7 @@ RSpec.describe(SpaceInvaders::Detector) do
           '--o--o--',
           '-o-oo-o-',
           'o-o--o-o',
-          '--------'
+          '--------',
         ].join("\n")
       end
 
@@ -158,11 +158,11 @@ RSpec.describe(SpaceInvaders::Detector) do
       it 'still finds the invader with sufficient similarity' do
         results = detector.detect(0.8) # 80% similarity threshold
 
-        expect(results.size).to(eq(1))
-        expect(results.first[:invader]).to(eq(small_invader))
-        expect(results.first[:position]).to(eq([1, 0]))
-        expect(results.first[:similarity]).to(be < 1.0)
-        expect(results.first[:similarity]).to(be >= 0.8)
+        expect(results.size).to eq(1)
+        expect(results.first[:invader]).to eq(small_invader)
+        expect(results.first[:position]).to eq([1, 0])
+        expect(results.first[:similarity]).to be < 1.0
+        expect(results.first[:similarity]).to be >= 0.8
       end
     end
   end

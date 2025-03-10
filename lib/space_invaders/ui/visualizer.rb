@@ -10,7 +10,7 @@ module SpaceInvaders
       yellow: "\e[33m",
       blue: "\e[34m",
       magenta: "\e[35m",
-      cyan: "\e[36m"
+      cyan: "\e[36m",
     }.freeze
 
     def initialize(radar, matches, format = nil)
@@ -25,8 +25,11 @@ module SpaceInvaders
       # Get all invader types from the SpaceInvaders module
       invader_types = SpaceInvaders.constants
                                    .map { |const| SpaceInvaders.const_get(const) }
-                                   .select { |const| const.is_a?(Class) && const < Invader && const != Invader }
-                                   .map { |klass| klass.name.split('::').last.gsub(/Invader$/, '').downcase }
+                                   .select { |const| const.is_a?(Class) && const < Invader && const != Invader } # rubocop:disable Layout/LineLength
+                                   .map do |klass|
+        klass.name.split('::').last.gsub(/Invader$/,
+                                         '').downcase
+      end
 
       # Available colors (excluding reset, which is not a display color)
       available_colors = COLORS.keys - [:reset]
