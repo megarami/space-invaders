@@ -22,6 +22,9 @@ module SpaceInvaders
 
       # Invader types to detect
       invader_types: ['all'],
+
+      # Detection algorithm to use
+      algorithm: 'naive',
     }.freeze
 
     DEFAULTS.each_key do |key|

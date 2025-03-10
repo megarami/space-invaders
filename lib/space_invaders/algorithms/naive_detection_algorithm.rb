@@ -1,27 +1,18 @@
 # frozen_string_literal: true
 
 module SpaceInvaders
-  class Detector
-    attr_reader :radar
-
-    def initialize(radar, invaders, config = Configuration.new)
-      @radar = radar
-      @invaders = invaders
-      @config = config
-    end
-
-    def detect(min_similarity = nil)
-      threshold = min_similarity || @config.min_similarity
+  class NaiveDetectionAlgorithm < DetectionAlgorithm
+    def detect
+      threshold = @config.min_similarity
       min_visibility = @config.min_visibility
-      duplicate_threshold = @config.duplicate_threshold
       matches = []
 
       @invaders.each do |invader|
         (-invader.height + 1..@radar.height).each do |row|
           (-invader.width + 1..@radar.width).each do |col|
-            similarity, matching_cells, significant_cells = calculate_similarity_with_bounds(invader, # rubocop:disable Layout/LineLength
-                                                                                             row,
-                                                                                             col)
+            similarity, matching_cells, significant_cells = calculate_similarity_with_bounds(
+              invader, row, col
+            )
 
             # Only consider matches with enough visible pattern and sufficient similarity
             if similarity < threshold ||
@@ -42,10 +33,34 @@ module SpaceInvaders
       end
 
       sorted_matches = matches.sort_by { |match| -match[:similarity] }
-      filter_duplicates(sorted_matches, duplicate_threshold)
+      filter_duplicates(sorted_matches)
     end
 
-    # Rubocop:enable Metrics/AbcSize
+    private
+
+    def filter_duplicates(matches, duplicate_threshold = nil)
+      threshold = duplicate_threshold || @config.duplicate_threshold
+      filtered = []
+
+      matches.each do |match|
+        too_close = filtered.any? do |kept_match|
+          next false unless match[:invader] == kept_match[:invader]
+
+          row_diff = (match[:position][0] - kept_match[:position][0]).abs
+          col_diff = (match[:position][1] - kept_match[:position][1]).abs
+
+          max_row_diff = (match[:invader].height * threshold).ceil
+          max_col_diff = (match[:invader].width * threshold).ceil
+
+          row_diff <= max_row_diff && col_diff <= max_col_diff
+        end
+
+        filtered << match unless too_close
+      end
+
+      filtered
+    end
+
     def calculate_similarity_with_bounds(invader, start_row, start_col)
       matching_cells = 0
       significant_cells = 0
@@ -73,33 +88,6 @@ module SpaceInvaders
       similarity = matching_cells.to_f / significant_cells
 
       [similarity, matching_cells, significant_cells]
-    end
-
-    def filter_duplicates(matches, duplicate_threshold = nil)
-      threshold = duplicate_threshold || @config.duplicate_threshold
-      filtered = []
-
-      matches.each do |match|
-        too_close = filtered.any? do |kept_match|
-          next false unless match[:invader] == kept_match[:invader]
-
-          row_diff = (match[:position][0] - kept_match[:position][0]).abs
-          col_diff = (match[:position][1] - kept_match[:position][1]).abs
-
-          max_row_diff = (match[:invader].height * threshold).ceil
-          max_col_diff = (match[:invader].width * threshold).ceil
-
-          row_diff <= max_row_diff && col_diff <= max_col_diff
-        end
-
-        filtered << match unless too_close
-      end
-
-      filtered
-    end
-
-    def within_radar_bounds?(row, col)
-      row >= 0 && row < @radar.height && col >= 0 && col < @radar.width
     end
   end
 end

@@ -32,7 +32,9 @@ module SpaceInvaders
     # Make sure the path is relative to the application's root directory
     PATTERNS_DIR = File.expand_path('../../../patterns', File.dirname(__FILE__))
 
-    def self.load_invaders
+    def self.load_invaders(config = Configuration.new)
+      invader_types = config.invader_types
+      load_all = invader_types.include?('all')
       invaders = []
 
       # Create patterns directory if it doesn't exist
@@ -40,9 +42,15 @@ module SpaceInvaders
         puts("Creating patterns directory at: #{PATTERNS_DIR}")
         Dir.mkdir(PATTERNS_DIR)
       end
-      # Load each pattern file and create a corresponding invader class
-      Dir.glob(File.join(PATTERNS_DIR, '*.txt')).each do |file|
-        invader_name = File.basename(file, '.txt')
+
+      pattern_files = Dir.glob(File.join(PATTERNS_DIR, '*.txt'))
+
+      pattern_files.each do |file|
+        invader_name = File.basename(file, '.txt').downcase
+
+        # Skip files that don't match the configuration
+        next unless load_all || invader_types.include?(invader_name)
+
         pattern_data = File.read(file)
 
         # Create class name
@@ -61,9 +69,11 @@ module SpaceInvaders
           SpaceInvaders.const_set(class_name, invader_class)
         end
 
-        # Always add to invaders array
         invaders << invader_class
       end
+
+      # If no invaders were loaded, raise an error
+      raise(ArgumentError, 'No valid invader types specified.') if invaders.empty?
 
       invaders
     end

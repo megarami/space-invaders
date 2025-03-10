@@ -8,34 +8,22 @@ module SpaceInvaders
     def initialize(radar_data, config = Configuration.new)
       @radar = Radar.new(radar_data)
       @config = config
-      load_invaders
+      @invaders = InvaderLoader.load_invaders(@config)
     end
 
     def detect
-      detector = Detector.new(@radar, @invaders, @config)
-      detector.detect
-    end
+      algorithm_class = AlgorithmRegistry.get(@config.algorithm)
 
-    private
+      unless algorithm_class
+        available = AlgorithmRegistry.available_algorithms.join(', ')
+        raise(ArgumentError,
+              "Unknown algorithm '#{@config.algorithm}'. Available algorithms: #{available}")
+      end
 
-    def load_invaders
-      all_invaders = InvaderLoader.load_invaders
+      algorithm = algorithm_class.new(@radar, @invaders, @config)
 
-      # Filter invaders based on configuration
-      @invaders = if @config.invader_types.include?('all')
-                    all_invaders
-                  else
-                    all_invaders.select do |invader|
-                      type_name = invader.name.downcase
-                      @config.invader_types.include?(type_name)
-                    end
-                  end
-
-      return unless @invaders.empty?
-
-      available_types = all_invaders.map { |i| i.name.downcase }.join(', ')
-      raise(ArgumentError,
-            "No valid invader types specified. Available types: #{available_types}, all")
+      # Run the detection
+      algorithm.detect
     end
   end
 end

@@ -30,6 +30,10 @@ module SpaceInvaders
 
     private
 
+    def available_algorithms
+      AlgorithmRegistry.available_algorithms
+    end
+
     def available_invader_types
       # Get names of all loaded invader classes
       SpaceInvaders.constants
@@ -37,6 +41,7 @@ module SpaceInvaders
                    .select { |const| const.is_a?(Class) && const < Invader && const != Invader }
                    .map { |klass| klass.name.to_s }
                    .map { |name| name.split('::').last.gsub(/Invader$/, '').downcase }
+                   .append('all')
     end
 
     def parse_options
@@ -72,6 +77,11 @@ module SpaceInvaders
         opts.on('-d', '--duplicate-threshold FLOAT', Float,
                 "Duplicate detection threshold (default: #{Configuration::DEFAULTS[:duplicate_threshold]})") do |d|
           @config.duplicate_threshold = d
+        end
+
+        opts.on('-a', '--algorithm ALGORITHM',
+                "Detection algorithm to use: #{available_algorithms.join(', ')} (default: #{Configuration::DEFAULTS[:algorithm]})") do |a|
+          @config.algorithm = a
         end
 
         opts.on('-h', '--help', 'Show this help message') do

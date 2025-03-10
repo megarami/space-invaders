@@ -7,16 +7,22 @@ require_relative 'space_invaders/models/radar'
 # Configuration
 require_relative 'space_invaders/config/configuration'
 
+# Algorithm framework
+require_relative 'space_invaders/algorithms/detection_algorithm'
+require_relative 'space_invaders/algorithms/algorithm_registry'
+
+# Specific algorithms
+require_relative 'space_invaders/algorithms/naive_detection_algorithm'
+
 # Services
-require_relative 'space_invaders/services/detector'
 require_relative 'space_invaders/services/detector_service'
 
 # UI
 require_relative 'space_invaders/ui/visualizer'
 
 module SpaceInvaders
-  VERSION = '1.0.0'
-end
+  VERSION = '1.1.0'
 
-# Load invader patterns after all classes are defined
-SpaceInvaders::InvaderLoader.load_invaders
+  # Register available algorithms
+  AlgorithmRegistry.register('naive', NaiveDetectionAlgorithm)
+end
