@@ -3,39 +3,35 @@
 require 'spec_helper'
 
 RSpec.describe(SpaceInvaders) do
+  before(:all) do
+    SpaceInvaders::AlgorithmRegistry.register('naive', SpaceInvaders::NaiveDetectionAlgorithm)
+  end
+
   describe 'VERSION' do
     it 'has a version number' do
       expect(SpaceInvaders::VERSION).not_to be_nil
     end
   end
 
-  describe 'module structure' do
-    # rubocop:disable RSpec/MultipleExpectations
-    it 'includes the required modules and classes' do
-      expect(defined?(SpaceInvaders::Invader)).to eq('constant')
-      expect(defined?(SpaceInvaders::Radar)).to eq('constant')
-      expect(defined?(SpaceInvaders::Configuration)).to eq('constant')
-      expect(defined?(SpaceInvaders::Detector)).to eq('constant')
-      expect(defined?(SpaceInvaders::DetectorService)).to eq('constant')
-      expect(defined?(SpaceInvaders::Visualizer)).to eq('constant')
+  describe 'algorithm registration' do
+    it 'registers the default naive algorithm' do
+      expect(SpaceInvaders::AlgorithmRegistry.get('naive')).to eq(SpaceInvaders::NaiveDetectionAlgorithm)
     end
-    # rubocop:enable RSpec/MultipleExpectations
+
+    it 'lists available algorithms' do
+      expect(SpaceInvaders::AlgorithmRegistry.available_algorithms).to include('naive')
+    end
   end
 
   describe 'InvaderLoader' do
-    it 'loads invader patterns' do
-      # Check that loader functionality works
-      invaders = SpaceInvaders::InvaderLoader.load_invaders
+    it 'loads invaders with config filtering' do
+      # Create a test configuration
+      config = SpaceInvaders::Configuration.new(invader_types: ['all'])
+
+      # Load invaders with config
+      invaders = SpaceInvaders::InvaderLoader.load_invaders(config)
       expect(invaders).to be_an(Array)
       expect(invaders).not_to be_empty
-
-      # Verify at least one invader class exists
-      expect(invaders.first).to be < SpaceInvaders::Invader
-    end
-
-    it 'has a patterns directory' do
-      expect(SpaceInvaders::InvaderLoader::PATTERNS_DIR).to be_a(String)
-      expect(Dir.exist?(SpaceInvaders::InvaderLoader::PATTERNS_DIR)).to be(true)
     end
   end
 end

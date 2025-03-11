@@ -29,4 +29,6 @@ RSpec.configure do |config|
 
   # Use the specified formatter
   config.formatter = :documentation
+
+  SpaceInvaders::InvaderLoader.load_invaders
 end

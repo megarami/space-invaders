@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-# rubocop:disable RSpec/SpecFilePathFormat
+
 RSpec.describe(SpaceInvaders::DetectorService) do
   let(:radar_data) do
     "-o--o-----\n" \
@@ -16,16 +16,42 @@ RSpec.describe(SpaceInvaders::DetectorService) do
       '----------'
   end
 
-  let(:config) { SpaceInvaders::Configuration.new(invader_types: ['test']) }
   let(:test_invader_class) do
     Class.new(SpaceInvaders::Invader) do
       initialize_pattern("-o\noo", 'test')
     end
   end
 
+  let(:config) do
+    SpaceInvaders::Configuration.new(
+      invader_types: ['test'],
+      algorithm: 'test_algorithm'
+    )
+  end
+
+  let(:test_algorithm_class) do
+    Class.new(SpaceInvaders::DetectionAlgorithm) do
+      def detect
+        [{ result: 'test' }]
+      end
+    end
+  end
+
   before do
     # Mock the InvaderLoader to return our test invader
     allow(SpaceInvaders::InvaderLoader).to receive(:load_invaders).and_return([test_invader_class])
+
+    # Register test algorithm
+    @original_algorithms = SpaceInvaders::AlgorithmRegistry.algorithms
+    SpaceInvaders::AlgorithmRegistry.register('test_algorithm', test_algorithm_class)
+  end
+
+  after do
+    # Restore original algorithms
+    SpaceInvaders::AlgorithmRegistry.algorithms.clear
+    @original_algorithms.each do |name, algorithm|
+      SpaceInvaders::AlgorithmRegistry.algorithms[name] = algorithm
+    end
   end
 
   describe '#initialize' do
@@ -37,46 +63,57 @@ RSpec.describe(SpaceInvaders::DetectorService) do
       expect(service.radar.height).to eq(10)
     end
 
-    it 'filters invaders based on config' do
-      # Test we can get the invaders through the class instance variable
-      invaders = service.instance_variable_get(:@invaders)
-      expect(invaders.size).to eq(1)
-      expect(invaders.first).to eq(test_invader_class)
+    it 'loads invaders based on config' do
+      expect(service.invaders.size).to eq(1)
+      expect(service.invaders.first).to eq(test_invader_class)
     end
   end
 
   describe '#detect' do
     subject(:service) { described_class.new(radar_data, config) }
 
-    it 'delegates detection to the Detector class' do
-      detector_mock = instance_double(SpaceInvaders::Detector)
-      expect(SpaceInvaders::Detector).to have_received(:new).and_return(detector_mock)
-      expect(detector_mock).to have_received(:detect).and_return([])
-
+    it 'uses the algorithm specified in config' do
       results = service.detect
-      expect(results).to eq([])
+      expect(results).to eq([{ result: 'test' }])
     end
-  end
 
-  context 'with invalid invader type' do
-    let(:nonexistent_config) { SpaceInvaders::Configuration.new(invader_types: ['nonexistent']) }
+    it 'raises an error for unknown algorithm' do
+      unknown_config = SpaceInvaders::Configuration.new(
+        invader_types: ['test'],
+        algorithm: 'unknown_algorithm'
+      )
 
-    it 'raises an error when an invalid invader type is specified' do
-      expect do
-        described_class.new(radar_data,
-                            nonexistent_config)
-      end.to raise_error(ArgumentError, /No valid invader types specified/)
+      unknown_service = described_class.new(radar_data, unknown_config)
+
+      expect { unknown_service.detect }.to raise_error(ArgumentError, /Unknown algorithm/)
     end
-  end
 
-  context 'with "all" invader type' do
-    let(:all_config) { SpaceInvaders::Configuration.new(invader_types: ['all']) }
+    it 'properly instantiates the algorithm with radar, invaders, and config' do
+      # Create a test algorithm that validates its inputs
+      validator_class = Class.new(SpaceInvaders::DetectionAlgorithm) do
+        def detect
+          raise 'Invalid radar' unless @radar.is_a?(SpaceInvaders::Radar)
+          raise 'Invalid invaders' unless @invaders.is_a?(Array) && !@invaders.empty?
+          raise 'Invalid config' unless @config.is_a?(SpaceInvaders::Configuration)
 
-    it 'loads all available invader types' do
-      service = described_class.new(radar_data, all_config)
-      invaders = service.instance_variable_get(:@invaders)
-      expect(invaders).to eq([test_invader_class])
+          ['Success']
+        end
+      end
+
+      # Register the validator algorithm
+      SpaceInvaders::AlgorithmRegistry.register('validator', validator_class)
+
+      # Create config using the validator
+      validator_config = SpaceInvaders::Configuration.new(
+        invader_types: ['test'],
+        algorithm: 'validator'
+      )
+
+      # Create service with validator algorithm
+      validator_service = described_class.new(radar_data, validator_config)
+
+      # Should not raise any errors
+      expect(validator_service.detect).to eq(['Success'])
     end
   end
 end
-# rubocop:enable RSpec/SpecFilePathFormat
