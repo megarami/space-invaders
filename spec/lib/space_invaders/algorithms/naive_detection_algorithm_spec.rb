@@ -12,6 +12,7 @@ RSpec.describe(SpaceInvaders::NaiveDetectionAlgorithm) do
                     duplicate_threshold: 0.7)
   end
 
+  # rubocop:disable RSpec/MultipleMemoizedHelpers
   describe '#detect' do
     context 'with an exact match' do
       let(:radar_data) do
@@ -310,4 +311,5 @@ RSpec.describe(SpaceInvaders::NaiveDetectionAlgorithm) do
       expect(similarity).to eq(0)
     end
   end
+  # rubocop:enable RSpec/MultipleMemoizedHelpers
 end

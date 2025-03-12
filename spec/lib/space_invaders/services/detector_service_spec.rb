@@ -37,19 +37,20 @@ RSpec.describe(SpaceInvaders::DetectorService) do
     end
   end
 
+  let(:original_algorithms) { SpaceInvaders::AlgorithmRegistry.algorithms.dup }
+
   before do
     # Mock the InvaderLoader to return our test invader
     allow(SpaceInvaders::InvaderLoader).to receive(:load_invaders).and_return([test_invader_class])
 
     # Register test algorithm
-    @original_algorithms = SpaceInvaders::AlgorithmRegistry.algorithms
     SpaceInvaders::AlgorithmRegistry.register('test_algorithm', test_algorithm_class)
   end
 
   after do
     # Restore original algorithms
     SpaceInvaders::AlgorithmRegistry.algorithms.clear
-    @original_algorithms.each do |name, algorithm|
+    original_algorithms.each do |name, algorithm|
       SpaceInvaders::AlgorithmRegistry.algorithms[name] = algorithm
     end
   end

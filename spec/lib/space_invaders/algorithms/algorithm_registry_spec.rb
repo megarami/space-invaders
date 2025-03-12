@@ -33,13 +33,13 @@ RSpec.describe(SpaceInvaders::AlgorithmRegistry) do
     end
 
     it 'overwrites an existing algorithm with the same name' do
-      test_class1 = Class.new(SpaceInvaders::DetectionAlgorithm)
-      test_class2 = Class.new(SpaceInvaders::DetectionAlgorithm)
+      test_class_1 = Class.new(SpaceInvaders::DetectionAlgorithm)
+      test_class_2 = Class.new(SpaceInvaders::DetectionAlgorithm)
 
-      described_class.register('test', test_class1)
-      described_class.register('test', test_class2)
+      described_class.register('test', test_class_1)
+      described_class.register('test', test_class_2)
 
-      expect(described_class.get('test')).to eq(test_class2)
+      expect(described_class.get('test')).to eq(test_class_2)
     end
   end
 
@@ -69,11 +69,11 @@ RSpec.describe(SpaceInvaders::AlgorithmRegistry) do
     end
 
     it 'returns the list of registered algorithm names' do
-      test_class1 = Class.new(SpaceInvaders::DetectionAlgorithm)
-      test_class2 = Class.new(SpaceInvaders::DetectionAlgorithm)
+      test_class_1 = Class.new(SpaceInvaders::DetectionAlgorithm)
+      test_class_2 = Class.new(SpaceInvaders::DetectionAlgorithm)
 
-      described_class.register('algo1', test_class1)
-      described_class.register('algo2', test_class2)
+      described_class.register('algo1', test_class_1)
+      described_class.register('algo2', test_class_2)
 
       expect(described_class.available_algorithms).to contain_exactly('algo1', 'algo2')
     end

@@ -20,7 +20,7 @@ module SpaceInvaders
       row >= 0 && row < @radar.height && col >= 0 && col < @radar.width
     end
 
-    def filter_duplicates(matches, duplicate_threshold = nil)
+    def filter_duplicates(matches, duplicate_threshold = nil) # rubocop:disable Metrics/AbcSize
       threshold = duplicate_threshold || @config.duplicate_threshold
       filtered = []
 

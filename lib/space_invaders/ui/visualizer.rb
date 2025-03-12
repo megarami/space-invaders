@@ -50,6 +50,22 @@ module SpaceInvaders
       invader = match[:invader]
       start_row, start_col = match[:position]
 
+      # Create visualization grid
+      grid = create_visualization_grid(invader)
+
+      # Create legend
+      legend = create_match_legend if @color_enabled
+
+      # Fill grid with match visualization
+      fill_match_grid(grid, invader, start_row, start_col)
+
+      # Format match data
+      match_data = format_match_data(match)
+
+      "#{legend}#{grid.map(&:join).join("\n")}\n#{match_data}"
+    end
+
+    def create_visualization_grid(invader)
       # Create a local grid for this match
       display_height = invader.height + 4
       display_width = invader.width + 4
@@ -67,14 +83,17 @@ module SpaceInvaders
         grid[display_height - 1][j] = '-'
       end
 
-      legend = ''
-      if @color_enabled
-        legend = "Legend:\n"
-        legend += "#{colorize('o', :green)} = Matching invader pattern\n"
-        legend += "#{colorize('x', :red)} = Missing pattern cell\n"
-        legend += "#{colorize('?', :yellow)} = Radar noise\n"
-      end
+      grid
+    end
 
+    def create_match_legend
+      legend = "Legend:\n"
+      legend += "#{colorize('o', :green)} = Matching invader pattern\n"
+      legend += "#{colorize('x', :red)} = Missing pattern cell\n"
+      legend + "#{colorize('?', :yellow)} = Radar noise\n"
+    end
+
+    def fill_match_grid(grid, invader, start_row, start_col)
       # Add the invader pattern
       invader.pattern.each_with_index do |pattern_row, row_idx|
         pattern_row.each_with_index do |cell, col_idx|
@@ -88,25 +107,33 @@ module SpaceInvaders
 
           radar_cell = @radar.grid[radar_row][radar_col]
 
-          grid[grid_row][grid_col] = if cell == 'o'
-                                       if radar_cell == 'o'
-                                         colorize('o', :green)
-                                       else
-                                         colorize('x', :red)
-                                       end
-                                     elsif radar_cell == 'o'
-                                       colorize('?', :yellow)
-                                     else
-                                       ' '
-                                     end
+          grid[grid_row][grid_col] = determine_cell_display(cell, radar_cell)
         end
       end
+    end
 
-      match_data = "Invader: #{invader.name}\n"
-      match_data += "Position: (#{start_row}, #{start_col})\n"
-      match_data += "Match similarity: #{(match[:similarity] * 100).round(2)}%\n\n"
+    def determine_cell_display(pattern_cell, radar_cell)
+      if pattern_cell == 'o'
+        if radar_cell == 'o'
+          colorize('o', :green)
+        else
+          colorize('x', :red)
+        end
+      elsif radar_cell == 'o'
+        colorize('?', :yellow)
+      else
+        ' '
+      end
+    end
 
-      "#{legend}#{grid.map(&:join).join("\n")}\n#{match_data}"
+    def format_match_data(match)
+      invader = match[:invader]
+      start_row, start_col = match[:position]
+
+      data = "Invader: #{invader.name}\n"
+      data += "Position: (#{start_row}, #{start_col})\n"
+      data += "Match similarity: #{(match[:similarity] * 100).round(2)}%\n\n"
+      data
     end
 
     def visualize_full_radar

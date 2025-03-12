@@ -44,6 +44,7 @@ RSpec.describe(SpaceInvaders::DetectionAlgorithm) do
     end
   end
 
+  # rubocop:disable RSpec/MultipleMemoizedHelpers
   describe '#filter_duplicates' do
     let(:algorithm) { described_class.new(radar, invaders, config) }
     let(:duplicate_threshold) { 0.5 }
@@ -53,8 +54,7 @@ RSpec.describe(SpaceInvaders::DetectionAlgorithm) do
 
     let(:test_invader) do
       invader = double('Invader')
-      allow(invader).to receive(:height).and_return(5)
-      allow(invader).to receive(:width).and_return(5)
+      allow(invader).to receive_messages(height: 5, width: 5)
       invader
     end
 
@@ -108,4 +108,5 @@ RSpec.describe(SpaceInvaders::DetectionAlgorithm) do
       expect(algorithm.filter_duplicates([])).to eq([])
     end
   end
+  # rubocop:enable RSpec/MultipleMemoizedHelpers
 end

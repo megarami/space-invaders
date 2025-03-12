@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe(SpaceInvaders) do
-  before(:all) do
+  before(:all) do # rubocop:disable RSpec/BeforeAfterAll
     SpaceInvaders::AlgorithmRegistry.register('naive', SpaceInvaders::NaiveDetectionAlgorithm)
   end
 

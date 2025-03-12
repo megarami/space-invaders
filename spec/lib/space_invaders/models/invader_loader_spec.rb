@@ -78,7 +78,7 @@ RSpec.describe SpaceInvaders::InvaderLoader do
       expect(SpaceInvaders.const_defined?(:CustomInvader)).to be(true)
     end
 
-    it 'initializes patterns correctly' do
+    it 'initializes patterns correctly' do # rubocop:disable RSpec/MultipleExpectations
       described_class.load_invaders
       small_invader = SpaceInvaders::SmallInvader
       large_invader = SpaceInvaders::LargeInvader

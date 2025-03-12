@@ -14,11 +14,8 @@ module SpaceInvaders
               invader, row, col
             )
 
-            # Only consider matches with enough visible pattern and sufficient similarity
-            if similarity < threshold ||
-               significant_cells < (invader.total_significant_cells * min_visibility)
-              next
-            end
+            next unless valid_match?(similarity, significant_cells, invader, threshold,
+                                     min_visibility)
 
             matches << {
               invader: invader,
@@ -38,27 +35,9 @@ module SpaceInvaders
 
     private
 
-    def filter_duplicates(matches, duplicate_threshold = nil)
-      threshold = duplicate_threshold || @config.duplicate_threshold
-      filtered = []
-
-      matches.each do |match|
-        too_close = filtered.any? do |kept_match|
-          next false unless match[:invader] == kept_match[:invader]
-
-          row_diff = (match[:position][0] - kept_match[:position][0]).abs
-          col_diff = (match[:position][1] - kept_match[:position][1]).abs
-
-          max_row_diff = (match[:invader].height * threshold).ceil
-          max_col_diff = (match[:invader].width * threshold).ceil
-
-          row_diff <= max_row_diff && col_diff <= max_col_diff
-        end
-
-        filtered << match unless too_close
-      end
-
-      filtered
+    def valid_match?(similarity, significant_cells, invader, threshold, min_visibility)
+      similarity >= threshold &&
+        significant_cells >= (invader.total_significant_cells * min_visibility)
     end
 
     def calculate_similarity_with_bounds(invader, start_row, start_col)
